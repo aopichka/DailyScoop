@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "918328570560",
+    "firebase_url": "https://daily-scoop-19a12.firebaseio.com",
+    "project_id": "daily-scoop-19a12",
+    "storage_bucket": "daily-scoop-19a12.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:918328570560:android:d82637e99d0900c8ff3325",
+        "android_client_info": {
+          "package_name": "com.example.dailyscoop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "918328570560-slvlgnho79ghhhf463vucfdvlpfulumk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4uh--CZstUzN3RqB8vUvG8r1onDQwtHY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "918328570560-slvlgnho79ghhhf463vucfdvlpfulumk.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
