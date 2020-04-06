@@ -1,10 +1,17 @@
 package com.example.dailyscoop;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -12,21 +19,139 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.CancellationToken;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.LocationBias;
+import com.google.android.libraries.places.api.model.LocationRestriction;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class HomeActivity extends AppCompatActivity {
+import org.w3c.dom.Text;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+public class HomeActivity extends AppCompatActivity {
+    // Used to identify permissions for fine location
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12; // Could be any number
+
+    // Client to get the devices current location
+    private FusedLocationProviderClient mFusedLocationProviderClient;
+
+    // Client's last location
+    Location userLastLocation = null;
+
+    private ImageView imgRest1, imgRest2, imgRest3, imgRest4;
+    private TextView txtRes1, txtRes2, txtRes3, txtRes4;
     private FirebaseAuth firebaseAuth;
+    private PlacesClient placesClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        setUpUIViews();
+
         // Set up the firebase authentication
         firebaseAuth = FirebaseAuth.getInstance();
 
+        // Get a FusedLocationProviderClient
+        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Initialize the Places SDK
+        Places.initialize(getApplicationContext(), "AIzaSyABHotiUHr9HaqPuoCq4mbqlzPPnZtfC3U");
+
+        // Create a new Places client instance
+        placesClient = Places.createClient(this);
+
+        // Set the closest locations
+        getCurrentLatLng();
+        //setFourClosestLocations();
+
+    }
+
+    private void setFourClosestLocations() {
+        final TextView[] textViews = new TextView[] {txtRes1, txtRes2, txtRes3, txtRes4};
+
+        if (userLastLocation == null) return;
+
+        AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
+        String query = "Culver's";
+        FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                .setOrigin(new LatLng(userLastLocation.getLatitude(),userLastLocation.getLongitude()))
+                .setCountries("US")
+                .setTypeFilter(TypeFilter.ADDRESS)
+                .setSessionToken(token)
+                .setQuery(query)
+                .build();
+
+        placesClient.findAutocompletePredictions(request).addOnCompleteListener(new OnCompleteListener<FindAutocompletePredictionsResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<FindAutocompletePredictionsResponse> task) {
+                if (task.isSuccessful()) {
+                    int i = 0;
+                    for (AutocompletePrediction prediction: task.getResult().getAutocompletePredictions()) {
+                        if (i >= textViews.length) return;
+                        TextView txtView = textViews[i++];
+                        txtView.setText(prediction.getFullText(null));
+                    }
+                }
+            }
+        });
+
+
+    }
+
+    private void getCurrentLatLng() {
+        // Check if permission granted
+        int permission = ActivityCompat.checkSelfPermission(this.getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
+
+        // If permission is not granted, ask for it
+        if (permission == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+        } else {
+            // Display marker at current location
+            mFusedLocationProviderClient.getLastLocation()
+                    .addOnCompleteListener(new OnCompleteListener<Location>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Location> task) {
+                            Location mLastKnownLocation = task.getResult();
+                            if (task.isSuccessful() && mLastKnownLocation != null) {
+                                userLastLocation = mLastKnownLocation;
+                                setFourClosestLocations();
+                            }
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLatLng();
+            }
+        }
     }
 
     private void logout() {
@@ -46,7 +171,10 @@ public class HomeActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.logoutMenu: {
                 logout();
+                break;
             }
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -74,6 +202,18 @@ public class HomeActivity extends AppCompatActivity {
             img.setImageDrawable(res); // set as image
         }
 
+    }
+
+    private void setUpUIViews() {
+        imgRest1 = findViewById(R.id.img_rest1);
+        imgRest2 = findViewById(R.id.img_rest2);
+        imgRest3 = findViewById(R.id.img_rest3);
+        imgRest4 = findViewById(R.id.img_rest4);
+
+        txtRes1 = findViewById(R.id.txt_rest1);
+        txtRes2 = findViewById(R.id.txt_rest2);
+        txtRes3 = findViewById(R.id.txt_rest3);
+        txtRes4 = findViewById(R.id.txt_rest4);
     }
 
 }

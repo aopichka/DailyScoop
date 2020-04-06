@@ -75,6 +75,7 @@
         android:layout_marginEnd="208dp"
         android:layout_marginRight="208dp"
         android:layout_marginBottom="469dp"
+        android:lines="3"
         android:text="2102 W Beltline Hwy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -89,6 +90,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="13dp"
         android:layout_marginBottom="469dp"
+        android:lines="3"
         android:text="4401 Cottage Grove Rd"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -103,6 +105,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="17dp"
         android:layout_marginBottom="335dp"
+        android:lines="3"
         android:text="1325 Northport Dr"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -117,6 +120,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="17dp"
         android:layout_marginBottom="335dp"
+        android:lines="3"
         android:text="7206 Mineral Point Rd"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -136,7 +140,7 @@
         app:layout_constraintHorizontal_bias="0.053"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt_rest3"
-        app:layout_constraintVertical_bias="0.12" />
+        app:layout_constraintVertical_bias="0.119" />
 
     <ImageView
         android:id="@+id/imageView5"
@@ -145,10 +149,10 @@
         android:layout_marginTop="27dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.24"
+        app:layout_constraintHorizontal_bias="0.241"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintVertical_bias="0.132"
         app:srcCompat="@drawable/culver" />
 
     <ImageView
@@ -161,7 +165,7 @@
         app:layout_constraintHorizontal_bias="0.759"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView8"
-        app:layout_constraintVertical_bias="0.017"
+        app:layout_constraintVertical_bias="0.129"
         app:srcCompat="@drawable/culverflavor2" />
 
     <ImageView
