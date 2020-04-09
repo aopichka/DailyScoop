@@ -38,6 +38,7 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.w3c.dom.Text;
@@ -84,6 +85,25 @@ public class HomeActivity extends AppCompatActivity {
         getCurrentLatLng();
         //setFourClosestLocations();
 
+        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.item1:
+                        break;
+                    case R.id.item2:
+                        Intent a = new Intent(HomeActivity.this,LocationActivity.class);
+                        startActivity(a);
+                        break;
+                    case R.id.item3:
+                        Intent b = new Intent(HomeActivity.this,FlavorActivity.class);
+                        startActivity(b);
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
     private void setFourClosestLocations() {

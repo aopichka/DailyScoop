@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/item1"
+        android:title="Upcoming"
+        android:icon="@drawable/ic_perm_contact_calendar_black_24dp"
+        android:enabled="true"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item android:id="@+id/item2"
+        android:title="Locations"
+        android:enabled="true"
+        android:icon="@drawable/ic_business_black_24dp"
+        app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/item3"
+        android:title="Flavors"
+        android:enabled="true"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        app:showAsAction="ifRoom|withText"/>
+
+</menu>
