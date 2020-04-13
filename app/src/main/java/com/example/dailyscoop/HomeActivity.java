@@ -189,10 +189,12 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.logoutMenu: {
+            case R.id.logoutMenu:
                 logout();
                 break;
-            }
+            case R.id.settingsMenu:
+                startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
+                break;
             default:
                 break;
         }
