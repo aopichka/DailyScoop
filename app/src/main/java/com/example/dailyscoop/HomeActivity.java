@@ -193,7 +193,7 @@ public class HomeActivity extends AppCompatActivity {
                 logout();
                 break;
             case R.id.settingsMenu:
-                setContentView(R.layout.activity_settings);
+                startActivity(new Intent(HomeActivity.this, SettingsActivity.class));
                 break;
             default:
                 break;

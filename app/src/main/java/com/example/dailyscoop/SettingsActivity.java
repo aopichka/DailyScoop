@@ -8,16 +8,22 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.location.LocationServices;
+import com.google.android.libraries.places.api.Places;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class LocationActivity extends AppCompatActivity {
+public class SettingsActivity  extends AppCompatActivity {
+
     private FirebaseAuth firebaseAuth;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
+        // Set up the firebase authentication
+        firebaseAuth = FirebaseAuth.getInstance();
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_location);
+        setContentView(R.layout.activity_settings);
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -25,25 +31,21 @@ public class LocationActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.item1:
-                        Intent a = new Intent(LocationActivity.this,HomeActivity.class);
-                        startActivity(a);
+                        Intent c = new Intent(SettingsActivity.this,HomeActivity.class);
+                        startActivity(c);
                         break;
                     case R.id.item2:
+                        Intent a = new Intent(SettingsActivity.this,LocationActivity.class);
+                        startActivity(a);
                         break;
                     case R.id.item3:
-                        Intent b = new Intent(LocationActivity.this,FlavorActivity.class);
+                        Intent b = new Intent(SettingsActivity.this,FlavorActivity.class);
                         startActivity(b);
                         break;
                 }
                 return false;
             }
         });
-    }
-
-    private void logout() {
-        firebaseAuth.signOut();
-        finish();
-        startActivity(new Intent(LocationActivity.this, LoginActivity.class));
     }
 
     @Override
@@ -59,11 +61,17 @@ public class LocationActivity extends AppCompatActivity {
                 logout();
                 break;
             case R.id.settingsMenu:
-                startActivity(new Intent(LocationActivity.this, SettingsActivity.class));
+                startActivity(new Intent(SettingsActivity.this, SettingsActivity.class));
                 break;
             default:
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void logout() {
+        firebaseAuth.signOut();
+        finish();
+        startActivity(new Intent(SettingsActivity.this, LoginActivity.class));
     }
 }
