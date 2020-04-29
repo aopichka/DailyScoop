@@ -13,6 +13,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +35,11 @@ import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.LocationBias;
 import com.google.android.libraries.places.api.model.LocationRestriction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FetchPlaceResponse;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
@@ -44,6 +49,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -83,7 +89,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Set the closest locations
         getCurrentLatLng();
-        //setFourClosestLocations();
+        setFourClosestLocations();
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
         navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -111,12 +117,17 @@ public class HomeActivity extends AppCompatActivity {
 
         if (userLastLocation == null) return;
 
+        // Calculate the location bias bounds
+        LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
+        LatLng northeast = new LatLng(userLastLocation.getLatitude() + 0.125, userLastLocation.getLongitude() + 0.125);
+
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
         String query = "Culver's";
         FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
                 .setOrigin(new LatLng(userLastLocation.getLatitude(),userLastLocation.getLongitude()))
+                .setLocationBias(RectangularBounds.newInstance(southwest, northeast))
                 .setCountries("US")
-                .setTypeFilter(TypeFilter.ADDRESS)
+                .setTypeFilter(TypeFilter.ESTABLISHMENT)
                 .setSessionToken(token)
                 .setQuery(query)
                 .build();
@@ -127,9 +138,24 @@ public class HomeActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     int i = 0;
                     for (AutocompletePrediction prediction: task.getResult().getAutocompletePredictions()) {
-                        if (i >= textViews.length) return;
-                        TextView txtView = textViews[i++];
-                        txtView.setText(prediction.getFullText(null));
+                        if (i++ >= 1) return;
+//                        TextView txtView = textViews[i++];
+//                        txtView.setText(prediction.getFullText(null));
+
+                        // Make an ArrayList of the fields we want returned
+                        List<Place.Field> fields = new ArrayList<>();
+                        fields.add(Place.Field.WEBSITE_URI);
+
+                        // Send a Place detail requests for each location
+                        placesClient.fetchPlace(FetchPlaceRequest.newInstance(prediction.getPlaceId(), fields))
+                                .addOnCompleteListener(new OnCompleteListener<FetchPlaceResponse>() {
+                            @Override
+                            public void onComplete(@NonNull Task<FetchPlaceResponse> task) {
+                                if (task.isSuccessful()) {
+                                    System.out.println(task.getResult().getPlace().getWebsiteUri().toString());
+                                }
+                            }
+                        });
                     }
                 }
             }
