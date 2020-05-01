@@ -12,6 +12,8 @@ import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.util.Log;
@@ -45,10 +47,18 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.w3c.dom.Text;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +75,7 @@ public class HomeActivity extends AppCompatActivity {
 
     private ImageView imgRest1, imgRest2, imgRest3, imgRest4;
     private TextView txtRes1, txtRes2, txtRes3, txtRes4;
+    private List<TextView> textViews;
     private FirebaseAuth firebaseAuth;
     private PlacesClient placesClient;
 
@@ -113,14 +124,26 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setFourClosestLocations() {
-        final TextView[] textViews = new TextView[] {txtRes1, txtRes2, txtRes3, txtRes4};
+        if (userLastLocation == null) {
+            // Set the Textviews to default values
+            for (TextView textView : textViews) {
+                textView.setText("Unable to load data");
+            }
+            return;
+        } else {
+            // Set the Textviews to default values
+            for (TextView textView : textViews) {
+                textView.setText("Loading Data...");
+            }
+        }
 
-        if (userLastLocation == null) return;
+        List<RestaurantInfo> restaurantInfos = new ArrayList<>();
 
         // Calculate the location bias bounds
         LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
         LatLng northeast = new LatLng(userLastLocation.getLatitude() + 0.125, userLastLocation.getLongitude() + 0.125);
 
+        // Craft the query for nearby Culver's
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
         String query = "Culver's";
         FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
@@ -137,22 +160,36 @@ public class HomeActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<FindAutocompletePredictionsResponse> task) {
                 if (task.isSuccessful()) {
                     int i = 0;
-                    for (AutocompletePrediction prediction: task.getResult().getAutocompletePredictions()) {
-                        if (i++ >= 1) return;
-//                        TextView txtView = textViews[i++];
-//                        txtView.setText(prediction.getFullText(null));
+                    for (AutocompletePrediction prediction : task.getResult().getAutocompletePredictions()) {
+                        if (i++ >= textViews.size()) return;
 
                         // Make an ArrayList of the fields we want returned
                         List<Place.Field> fields = new ArrayList<>();
                         fields.add(Place.Field.WEBSITE_URI);
+                        fields.add(Place.Field.NAME);
+                        fields.add(Place.Field.ID);
+                        fields.add(Place.Field.ADDRESS);
 
-                        // Send a Place detail requests for each location
-                        placesClient.fetchPlace(FetchPlaceRequest.newInstance(prediction.getPlaceId(), fields))
-                                .addOnCompleteListener(new OnCompleteListener<FetchPlaceResponse>() {
+                        // Send a Place detail request for each location
+                        placesClient.fetchPlace(FetchPlaceRequest.newInstance(prediction.getPlaceId(), fields)).addOnCompleteListener(new OnCompleteListener<FetchPlaceResponse>() {
                             @Override
                             public void onComplete(@NonNull Task<FetchPlaceResponse> task) {
                                 if (task.isSuccessful()) {
-                                    System.out.println(task.getResult().getPlace().getWebsiteUri().toString());
+                                    Place place = task.getResult().getPlace();
+
+                                    // Use the website data to get the FOTD
+                                    String websiteUri = place.getWebsiteUri().toString()
+                                            .replaceFirst("^http", "https");
+
+                                    // Get the FOTD and update the TextViews (All done in the AsyncTask)
+                                    // Create the Restaurant info object to store the data we receive
+                                    RestaurantInfo restaurantInfo = new RestaurantInfo(place.getId());
+                                    restaurantInfo.setName(place.getName());
+                                    restaurantInfo.setAddress(place.getAddress());
+                                    //restaurantInfo.setImage();
+                                    restaurantInfo.setWebsiteUri(websiteUri);
+
+                                    new CulversInfoAsyncTask().execute(restaurantInfo);
                                 }
                             }
                         });
@@ -160,8 +197,22 @@ public class HomeActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
+    private String getFOTD(String websiteUri) {
+        if (websiteUri == null) return "";
 
+        // Get the page contents
+        Document document;
+        try {
+            document = Jsoup.connect(websiteUri).get();
+        } catch (IOException ex) {
+            return "Unable to find FOD";
+        }
+
+        // Parse the page for the FOD
+        Element fodImage = document.select("div.ModuleRestaurantDetail-fotd > img").first();
+        return fodImage.attributes().get("alt");
     }
 
     private void getCurrentLatLng() {
@@ -262,6 +313,34 @@ public class HomeActivity extends AppCompatActivity {
         txtRes2 = findViewById(R.id.txt_rest2);
         txtRes3 = findViewById(R.id.txt_rest3);
         txtRes4 = findViewById(R.id.txt_rest4);
+
+        textViews = new ArrayList<>();
+        textViews.add(txtRes1);
+        textViews.add(txtRes2);
+        textViews.add(txtRes3);
+        textViews.add(txtRes4);
     }
 
+    private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
+        protected RestaurantInfo doInBackground(RestaurantInfo... restaurantInfo) {
+            restaurantInfo[0].setFotd(getFOTD(restaurantInfo[0].getWebsiteUri()));
+            return restaurantInfo[0];
+        }
+
+        protected void onProgressUpdate(Integer... progress) { }
+
+        protected void onPostExecute(RestaurantInfo restaurantInfo) {
+            for (TextView textView : textViews) {
+                if (!textView.getText().equals("Loading Data...")) continue;
+
+                // Craft the string for the rest info TESTING TODO
+                String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
+                textView.setText(label);
+                return;
+            }
+        }
+
+    }
 }
+
+
