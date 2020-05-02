@@ -152,6 +152,6 @@ public class SettingsActivity  extends AppCompatActivity {
 
     public void SendTestNotification(View v){
         Intent intent = new Intent(this, AlarmReceiver.class);
-        AlarmReceiver.SendNotifications(this, intent);
+        new AlarmReceiver().getClosestLocation(this, intent);
     }
 }
