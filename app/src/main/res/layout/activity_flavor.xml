@@ -7,8 +7,9 @@
     <TextView
         android:id="@+id/textView3"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Please select your favorite flavors." />
+        android:layout_height="45dp"
+        android:text="Please Select Your Favorite Flavors."
+        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
     <FrameLayout
         android:layout_width="match_parent"
