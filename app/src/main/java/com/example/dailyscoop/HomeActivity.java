@@ -348,11 +348,18 @@ public class HomeActivity extends AppCompatActivity {
             // Store the location data in SharedPreferences
             sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
 
-            // Craft the string for the rest info TESTING TODO
+            // Craft the string for the rest info
             String label = restaurantInfo.getAddress();
             textView.setText(label);
             String label2 = restaurantInfo.getFotd();
             flavView.setText(label2);
+
+            // Set the image for the restaurants
+            String pathToImage = restaurantInfo.getFotd().toLowerCase();
+            pathToImage = pathToImage.trim();
+            pathToImage = pathToImage.replaceAll(" ", "");
+            pathToImage = pathToImage.replaceAll("’", "");
+            updatePicture(pathToImage, i);
         }
 
         setUpcomingFavoriteFlavors(); // TODO maybe combine these methods into a master method
@@ -443,9 +450,9 @@ public class HomeActivity extends AppCompatActivity {
 
     private void updatePicture(String newImage, int index) {
 
-        String uri = "@drawable/" + newImage;
+        String uri = newImage;
 
-        int imageResource = getResources().getIdentifier(uri, null, getPackageName()); //get image  resource
+        int imageResource = getResources().getIdentifier(uri, "drawable", getPackageName()); //get image  resource
 
         Drawable res = getResources().getDrawable(imageResource); // convert into drawble
 
