@@ -91,9 +91,11 @@ public class HomeActivity extends AppCompatActivity {
     // Model - Data to be displayed on the screen
     List<RestaurantInfo> restaurantInfos;
 
-    private ImageView imgRest1, imgRest2, imgRest3, imgRest4;
-    private TextView txtRes1, txtRes2, txtRes3, txtRes4;
+    private ImageView imgRest1, imgRest2, imgRest3, imgRest4, imgRest5;
+    private TextView flav1, flav2, flav3, flav4, flav5;
+    private TextView txtRes1, txtRes2;
     private List<TextView> textViews;
+    private List<TextView> flavViews;
     private FirebaseAuth firebaseAuth;
     private PlacesClient placesClient;
 
@@ -261,6 +263,9 @@ public class HomeActivity extends AppCompatActivity {
                                 }
                             }
                         });
+            } else {
+                loadNewLocations();
+                return;
             }
             // TODO deal with this error condition
         }
@@ -284,14 +289,17 @@ public class HomeActivity extends AppCompatActivity {
     private void updateRestaurantInfoTextViews() {
         for (int i=0; i<textViews.size() && i<restaurantInfos.size(); i++) {
             TextView textView = textViews.get(i);
+            TextView flavView = flavViews.get(i);
             RestaurantInfo restaurantInfo = restaurantInfos.get(i);
 
             // Store the location data in SharedPreferences
             sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
 
             // Craft the string for the rest info TESTING TODO
-            String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
+            String label = restaurantInfo.getAddress();
             textView.setText(label);
+            String label2 = restaurantInfo.getFotd();
+            flavView.setText(label2);
         }
     }
 
@@ -395,6 +403,8 @@ public class HomeActivity extends AppCompatActivity {
             img = findViewById(R.id.img_rest3);
         } else if (index == 3) {
             img = findViewById(R.id.img_rest4);
+        } else if (index == 4) {
+            img = findViewById(R.id.img_rest5);
         }
 
         if (img != null) {
@@ -404,21 +414,30 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setUpUIViews() {
+
+        // Image
         imgRest1 = findViewById(R.id.img_rest1);
         imgRest2 = findViewById(R.id.img_rest2);
         imgRest3 = findViewById(R.id.img_rest3);
         imgRest4 = findViewById(R.id.img_rest4);
+        imgRest5 = findViewById(R.id.img_rest5);
 
+        // Address
         txtRes1 = findViewById(R.id.txt_rest1);
         txtRes2 = findViewById(R.id.txt_rest2);
-        txtRes3 = findViewById(R.id.txt_rest3);
-        txtRes4 = findViewById(R.id.txt_rest4);
+
+        // Flavor
+        flav1 = findViewById(R.id.flav1);
+        flav2 = findViewById(R.id.flav2);
+
 
         textViews = new ArrayList<>();
-        textViews.add(txtRes1);
+        textViews.add(txtRes1); // Addresses
         textViews.add(txtRes2);
-        textViews.add(txtRes3);
-        textViews.add(txtRes4);
+
+        flavViews = new ArrayList<>();
+        flavViews.add(txtRes1); // Addresses
+        flavViews.add(txtRes2);
     }
 
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
