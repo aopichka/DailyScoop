@@ -64,8 +64,11 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
@@ -150,6 +153,50 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    private void setUpcomingFavoriteFlavors() {
+        // TODO TESTING
+        List<String> favFlavors = new ArrayList<>();
+        favFlavors.add("Turtle");
+        favFlavors.add("Mint Chip");
+        favFlavors.add("Cookie Dough Craving");
+
+        // Set the dates for each flavor
+        for (String flavor : favFlavors) {
+            String nextDateString = "";
+            Calendar nextDateCal = null;
+            for (RestaurantInfo restaurantInfo : restaurantInfos) {
+                String nextDateTemp = restaurantInfo.getDateForFlavor(flavor);
+                if (nextDateTemp.isEmpty()) continue;
+
+                Calendar cal = Calendar.getInstance();
+                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
+                Date parsedDate;
+                try {
+                    parsedDate = sdf.parse(date);
+                } catch (ParseException ex) {
+                    return; // TODO Fix this error handling
+                }
+                cal.setTime(parsedDate);
+
+                // Set the time to midnight
+                cal.set(Calendar.HOUR_OF_DAY, 0);
+                cal.set(Calendar.MINUTE, 0);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
+                if (nextDateString.isEmpty() || cal.before(nextDateCal)) {
+                    nextDateString = nextDateTemp;
+                    nextDateCal = cal;
+                }
+            }
+            if (!nextDateString.isEmpty()) {
+                // Set the UI elements here
+            } else {
+                // Set the default UI elements here
+            }
+        }
+    }
+
     private void setFourClosestLocations() {
         if (userLastLocation == null) {
             // Set the Textviews to default values
@@ -173,8 +220,7 @@ public class HomeActivity extends AppCompatActivity {
         float[] results = new float[1];
         Location.distanceBetween(userLastLocation.getLatitude(), userLastLocation.getLongitude(), userStoredLatitude, userStoredLongitude, results);
         if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
-            //loadCachedLocations(); // TODO TESTING
-            loadNewLocations();
+            loadCachedLocations();
         } else {
             loadNewLocations();
         }
@@ -305,6 +351,8 @@ public class HomeActivity extends AppCompatActivity {
             String label2 = restaurantInfo.getFotd();
             flavView.setText(label2);
         }
+
+        setUpcomingFavoriteFlavors(); // TODO maybe combine these methods into a master method
     }
 
     private String getFOTD(String websiteUri) {
