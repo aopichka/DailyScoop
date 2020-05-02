@@ -23,44 +23,44 @@
 
     <TextView
         android:id="@+id/flav1"
-        android:layout_width="61dp"
+        android:layout_width="147dp"
         android:layout_height="21dp"
-        android:background="#FFFFFF"
+        android:background="#00FFFFFF"
         android:lines="3"
         android:text="Flavor"
         android:textColor="#0546B4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.437"
+        app:layout_constraintHorizontal_bias="0.674"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.278" />
+        app:layout_constraintVertical_bias="0.238" />
 
     <TextView
         android:id="@+id/txt_rest1"
-        android:layout_width="243dp"
-        android:layout_height="41dp"
+        android:layout_width="150dp"
+        android:layout_height="59dp"
         android:lines="3"
         android:text="Address"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.892"
+        app:layout_constraintHorizontal_bias="0.68"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.215" />
+        app:layout_constraintVertical_bias="0.164" />
 
     <TextView
         android:id="@+id/txt_rest2"
-        android:layout_width="243dp"
-        android:layout_height="41dp"
+        android:layout_width="137dp"
+        android:layout_height="57dp"
         android:lines="3"
         android:text="Address"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.91"
+        app:layout_constraintHorizontal_bias="0.638"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.397" />
+        app:layout_constraintVertical_bias="0.385" />
 
     <TextView
         android:id="@+id/days_away1"
@@ -70,10 +70,10 @@
         android:text="Days Away"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
+        app:layout_constraintHorizontal_bias="0.049"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.872" />
+        app:layout_constraintVertical_bias="0.854" />
 
     <TextView
         android:id="@+id/flav3"
@@ -132,61 +132,61 @@
 
     <ImageView
         android:id="@+id/img_rest1"
-        android:layout_width="106dp"
-        android:layout_height="118dp"
+        android:layout_width="85dp"
+        android:layout_height="95dp"
+        android:src="@drawable/culverslogo2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintHorizontal_bias="0.116"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.174"
-        tools:srcCompat="@drawable/culverslogo2" />
+        app:layout_constraintVertical_bias="0.16" />
 
     <ImageView
         android:id="@+id/img_rest3"
         android:layout_width="105dp"
-        android:layout_height="119dp"
+        android:layout_height="107dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.052"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.773"
+        app:layout_constraintVertical_bias="0.754"
         app:srcCompat="@drawable/culver" />
 
     <ImageView
         android:id="@+id/img_rest2"
-        android:layout_width="106dp"
-        android:layout_height="109dp"
+        android:layout_width="83dp"
+        android:layout_height="95dp"
+        android:src="@drawable/culverslogo2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintHorizontal_bias="0.121"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.418"
-        tools:srcCompat="@drawable/culverslogo2" />
+        app:layout_constraintVertical_bias="0.407" />
 
     <ImageView
         android:id="@+id/img_rest4"
-        android:layout_width="106dp"
-        android:layout_height="120dp"
+        android:layout_width="107dp"
+        android:layout_height="105dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.771"
+        app:layout_constraintVertical_bias="0.755"
         app:srcCompat="@drawable/culverflavor2" />
 
     <ImageView
         android:id="@+id/img_rest5"
-        android:layout_width="103dp"
-        android:layout_height="121dp"
+        android:layout_width="101dp"
+        android:layout_height="105dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.938"
+        app:layout_constraintHorizontal_bias="0.932"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.772"
+        app:layout_constraintVertical_bias="0.755"
         app:srcCompat="@drawable/culverflavor2" />
 
     <TextView
@@ -196,9 +196,10 @@
         android:text="Days Away:"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.872" />
+        app:layout_constraintVertical_bias="0.854" />
 
     <TextView
         android:id="@+id/days_away3"
@@ -210,19 +211,19 @@
         app:layout_constraintHorizontal_bias="0.947"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.872" />
+        app:layout_constraintVertical_bias="0.854" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
-        android:layout_width="413dp"
-        android:layout_height="51dp"
+        android:layout_width="361dp"
+        android:layout_height="48dp"
         android:layout_gravity="bottom"
         android:background="@color/colorPrimary"
         app:itemIconTint="@color/white"
         app:itemTextColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
@@ -230,17 +231,17 @@
 
     <TextView
         android:id="@+id/flav2"
-        android:layout_width="61dp"
-        android:layout_height="21dp"
-        android:background="#FFFFFF"
+        android:layout_width="139dp"
+        android:layout_height="23dp"
+        android:background="#00FFFFFF"
         android:lines="3"
         android:text="Flavor"
         android:textColor="#0546B4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.434"
+        app:layout_constraintHorizontal_bias="0.643"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.471" />
+        app:layout_constraintVertical_bias="0.446" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

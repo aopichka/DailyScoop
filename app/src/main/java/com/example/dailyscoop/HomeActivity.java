@@ -92,7 +92,7 @@ public class HomeActivity extends AppCompatActivity {
     List<RestaurantInfo> restaurantInfos;
 
     private ImageView imgRest1, imgRest2, imgRest3, imgRest4, imgRest5;
-    private TextView flav1, flav2, flav3, flav4, flav5;
+    private TextView flav1, flav2;
     private TextView txtRes1, txtRes2;
     private List<TextView> textViews;
     private List<TextView> flavViews;
@@ -161,6 +161,9 @@ public class HomeActivity extends AppCompatActivity {
             // Set the Textviews to default values
             for (TextView textView : textViews) {
                 textView.setText("Loading Data...");
+            }
+            for (TextView flavView : flavViews) {
+                flavView.setText("Loading Data...");
             }
         }
 
@@ -430,14 +433,13 @@ public class HomeActivity extends AppCompatActivity {
         flav1 = findViewById(R.id.flav1);
         flav2 = findViewById(R.id.flav2);
 
-
         textViews = new ArrayList<>();
         textViews.add(txtRes1); // Addresses
         textViews.add(txtRes2);
 
         flavViews = new ArrayList<>();
-        flavViews.add(txtRes1); // Addresses
-        flavViews.add(txtRes2);
+        flavViews.add(flav1); // Addresses
+        flavViews.add(flav2);
     }
 
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
