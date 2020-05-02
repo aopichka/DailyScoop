@@ -425,6 +425,9 @@ public class HomeActivity extends AppCompatActivity {
         protected RestaurantInfo doInBackground(RestaurantInfo... restaurantInfo) {
             restaurantInfo[0].setFotd(getFOTD(restaurantInfo[0].getWebsiteUri()));
 
+            // Start the service to update the full month of data
+            CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo[0].getWebsiteUri(), restaurantInfo[0].getPlaceId());
+
             // Upload the data to the firestore DB
             firestore.collection("locations").document(restaurantInfo[0].getPlaceId()).set(restaurantInfo[0]);
 

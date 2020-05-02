@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.dailyscoop">
 
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".HomeActivity"></activity>
+        <service
+            android:name=".CulversFotdDataAcquisition"
+            android:exported="false"></service>
+
+        <activity android:name=".HomeActivity" />
         <activity android:name=".FlavorActivity" />
         <activity android:name=".LocationActivity" />
         <activity android:name=".SignUpActivity" />
@@ -25,9 +29,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyABHotiUHr9HaqPuoCq4mbqlzPPnZtfC3U"></meta-data>
+            android:value="AIzaSyABHotiUHr9HaqPuoCq4mbqlzPPnZtfC3U" />
     </application>
 
 </manifest>
