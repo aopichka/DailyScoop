@@ -6,7 +6,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
@@ -47,6 +49,9 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -64,6 +69,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
+    private static final int METERS_CHANGED_BEFORE_UPDATE = 8000;
+
     // Used to identify permissions for fine location
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12; // Could be any number
 
@@ -71,7 +78,13 @@ public class HomeActivity extends AppCompatActivity {
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
     // Client's last location
-    Location userLastLocation = null;
+    private Location userLastLocation = null;
+
+    // Access to the firebase DB
+    private FirebaseFirestore firestore;
+
+    // Access to SharedPreferences to store the user's last location
+    private SharedPreferences sharedPreferences;
 
     private ImageView imgRest1, imgRest2, imgRest3, imgRest4;
     private TextView txtRes1, txtRes2, txtRes3, txtRes4;
@@ -88,6 +101,12 @@ public class HomeActivity extends AppCompatActivity {
 
         // Set up the firebase authentication
         firebaseAuth = FirebaseAuth.getInstance();
+
+        // Set up the firestore database
+        firestore = FirebaseFirestore.getInstance();
+
+        // Set up the SharedPreferences Access
+        sharedPreferences = getSharedPreferences("com.example.dailyscoop", Context.MODE_PRIVATE);
 
         // Get a FusedLocationProviderClient
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -137,6 +156,19 @@ public class HomeActivity extends AppCompatActivity {
             }
         }
 
+        // Check the current user location with the last one stored
+        double userStoredLatitude = Double.longBitsToDouble(sharedPreferences.getLong("UserLastLatitude", (long) 0.0));
+        double userStoredLongitude = Double.longBitsToDouble(sharedPreferences.getLong("UserLastLongitude", (long) 0.0));
+        float[] results = new float[1];
+        Location.distanceBetween(userLastLocation.getLatitude(), userLastLocation.getLongitude(), userStoredLatitude, userStoredLongitude, results);
+        if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
+            loadCachedLocations();
+        } else {
+            loadNewLocations();
+        }
+    }
+
+    private void loadNewLocations() {
         List<RestaurantInfo> restaurantInfos = new ArrayList<>();
 
         // Calculate the location bias bounds
@@ -199,6 +231,37 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
+    private void loadCachedLocations() {
+        for (int i=0; i<textViews.size(); i++) {
+            // Get the PlaceId of the stored location
+            String placeId = sharedPreferences.getString("RestaurantInfo" + i, "");
+            if (!placeId.isEmpty()) {
+                final int textViewIndex = i;
+                firestore.collection("locations")
+                        .document(placeId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    RestaurantInfo restaurantInfo = task.getResult().toObject(RestaurantInfo.class);
+                                    if (restaurantInfo == null) {
+                                        loadNewLocations();
+                                    } else {
+                                        setRestaurantInfoTextView(restaurantInfo, textViews.get(textViewIndex));
+                                    }
+                                }
+                            }
+                        });
+            }
+            // TODO deal with this error condition
+        }
+    }
+
+    private void setRestaurantInfoTextView(RestaurantInfo restaurantInfo, TextView textView) {
+        // Craft the string for the rest info TESTING TODO
+        String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
+        textView.setText(label);
+    }
+
     private String getFOTD(String websiteUri) {
         if (websiteUri == null) return "";
 
@@ -225,7 +288,6 @@ public class HomeActivity extends AppCompatActivity {
                     new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         } else {
-            // Display marker at current location
             mFusedLocationProviderClient.getLastLocation()
                     .addOnCompleteListener(new OnCompleteListener<Location>() {
                         @Override
@@ -233,6 +295,11 @@ public class HomeActivity extends AppCompatActivity {
                             Location mLastKnownLocation = task.getResult();
                             if (task.isSuccessful() && mLastKnownLocation != null) {
                                 userLastLocation = mLastKnownLocation;
+
+                                // Store the user's last location in Shared Preferences
+                                sharedPreferences.edit().putLong("UserLastLatitude", Double.doubleToLongBits(userLastLocation.getLatitude())).apply();
+                                sharedPreferences.edit().putLong("UserLastLongitude", Double.doubleToLongBits(userLastLocation.getLongitude())).apply();
+
                                 setFourClosestLocations();
                             }
                         }
@@ -324,18 +391,25 @@ public class HomeActivity extends AppCompatActivity {
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
         protected RestaurantInfo doInBackground(RestaurantInfo... restaurantInfo) {
             restaurantInfo[0].setFotd(getFOTD(restaurantInfo[0].getWebsiteUri()));
+
+            // Upload the data to the firestore DB
+            firestore.collection("locations").document(restaurantInfo[0].getPlaceId()).set(restaurantInfo[0]);
+
             return restaurantInfo[0];
         }
 
         protected void onProgressUpdate(Integer... progress) { }
 
         protected void onPostExecute(RestaurantInfo restaurantInfo) {
+            int i = -1;
             for (TextView textView : textViews) {
+                i++;
                 if (!textView.getText().equals("Loading Data...")) continue;
 
-                // Craft the string for the rest info TESTING TODO
-                String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
-                textView.setText(label);
+                // Store the location data in SharedPreferences
+                sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
+
+                setRestaurantInfoTextView(restaurantInfo, textView);
                 return;
             }
         }
