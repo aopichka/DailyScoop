@@ -65,6 +65,8 @@ import org.w3c.dom.Text;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -85,6 +87,9 @@ public class HomeActivity extends AppCompatActivity {
 
     // Access to SharedPreferences to store the user's last location
     private SharedPreferences sharedPreferences;
+
+    // Model - Data to be displayed on the screen
+    List<RestaurantInfo> restaurantInfos;
 
     private ImageView imgRest1, imgRest2, imgRest3, imgRest4;
     private TextView txtRes1, txtRes2, txtRes3, txtRes4;
@@ -119,6 +124,7 @@ public class HomeActivity extends AppCompatActivity {
 
         // Set the closest locations
         getCurrentLatLng();
+        restaurantInfos = new ArrayList<>();
         setFourClosestLocations();
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
@@ -169,7 +175,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadNewLocations() {
-        List<RestaurantInfo> restaurantInfos = new ArrayList<>();
+        restaurantInfos.clear();
 
         // Calculate the location bias bounds
         LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
@@ -220,6 +226,7 @@ public class HomeActivity extends AppCompatActivity {
                                     restaurantInfo.setAddress(place.getAddress());
                                     //restaurantInfo.setImage();
                                     restaurantInfo.setWebsiteUri(websiteUri);
+                                    restaurantInfos.add(restaurantInfo);
 
                                     new CulversInfoAsyncTask().execute(restaurantInfo);
                                 }
@@ -232,6 +239,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void loadCachedLocations() {
+        restaurantInfos.clear();
         for (int i=0; i<textViews.size(); i++) {
             // Get the PlaceId of the stored location
             String placeId = sharedPreferences.getString("RestaurantInfo" + i, "");
@@ -246,7 +254,9 @@ public class HomeActivity extends AppCompatActivity {
                                     if (restaurantInfo == null) {
                                         loadNewLocations();
                                     } else {
-                                        setRestaurantInfoTextView(restaurantInfo, textViews.get(textViewIndex));
+                                        restaurantInfos.add(restaurantInfo);
+                                        updateFotd(restaurantInfo);
+                                        updateRestaurantInfoTextViews();
                                     }
                                 }
                             }
@@ -256,10 +266,33 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    private void setRestaurantInfoTextView(RestaurantInfo restaurantInfo, TextView textView) {
-        // Craft the string for the rest info TESTING TODO
-        String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
-        textView.setText(label);
+    private RestaurantInfo updateFotd(RestaurantInfo restaurantInfo) {
+        // Get the current day at midnight
+        Calendar today = new GregorianCalendar();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+
+        // If needed recompute the flavor of the day
+        if (!today.before(restaurantInfo.getFotdLastUpdatedDate())) {
+            new CulversInfoAsyncTask().execute(restaurantInfo);
+        }
+        return restaurantInfo;
+    }
+
+    private void updateRestaurantInfoTextViews() {
+        for (int i=0; i<textViews.size() && i<restaurantInfos.size(); i++) {
+            TextView textView = textViews.get(i);
+            RestaurantInfo restaurantInfo = restaurantInfos.get(i);
+
+            // Store the location data in SharedPreferences
+            sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
+
+            // Craft the string for the rest info TESTING TODO
+            String label = restaurantInfo.getName() + "\n" + restaurantInfo.getFotd() + "\n" + restaurantInfo.getAddress();
+            textView.setText(label);
+        }
     }
 
     private String getFOTD(String websiteUri) {
@@ -397,23 +430,8 @@ public class HomeActivity extends AppCompatActivity {
 
             return restaurantInfo[0];
         }
-
         protected void onProgressUpdate(Integer... progress) { }
-
-        protected void onPostExecute(RestaurantInfo restaurantInfo) {
-            int i = -1;
-            for (TextView textView : textViews) {
-                i++;
-                if (!textView.getText().equals("Loading Data...")) continue;
-
-                // Store the location data in SharedPreferences
-                sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
-
-                setRestaurantInfoTextView(restaurantInfo, textView);
-                return;
-            }
-        }
-
+        protected void onPostExecute(RestaurantInfo restaurantInfo) { updateRestaurantInfoTextViews(); }
     }
 }
 

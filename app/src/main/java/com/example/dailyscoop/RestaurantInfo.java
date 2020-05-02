@@ -2,7 +2,12 @@ package com.example.dailyscoop;
 
 import android.media.Image;
 
-import java.util.Date;
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.Exclude;
+
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
 
 public class RestaurantInfo {
     private String placeId;
@@ -10,7 +15,7 @@ public class RestaurantInfo {
     private String address;
     private String websiteUri;
     private String fotd;
-    private Date fotdLastUpdated;
+    private long fotdLastUpdated;
     private Image image;
 
     public RestaurantInfo() {
@@ -19,7 +24,7 @@ public class RestaurantInfo {
 
     public RestaurantInfo(String placeId) {
         this.placeId = placeId;
-        this.fotdLastUpdated = new Date();
+        this.fotdLastUpdated = new GregorianCalendar().getTimeInMillis();
     }
 
     // SETTERS
@@ -27,7 +32,7 @@ public class RestaurantInfo {
     public void setName(String name) { this.name = name; }
     public void setAddress(String address) { this.address = address; }
     public void setWebsiteUri(String websiteUri) { this.websiteUri = websiteUri; }
-    public void setFotd(String fotd) { this.fotd = fotd; }
+    public void setFotd(String fotd) { this.fotd = fotd; this.fotdLastUpdated = new GregorianCalendar().getTimeInMillis(); }
     public void setImage(Image image) { this.image = image; }
 
     // GETTERS
@@ -37,5 +42,13 @@ public class RestaurantInfo {
     public String getWebsiteUri() { return websiteUri; }
     public String getFotd() { return fotd; }
     public Image getImage() { return image; }
-    public Date getFotdLastUpdated() { return fotdLastUpdated; }
+    public long getFotdLastUpdated() { return fotdLastUpdated; }
+
+
+    @Exclude
+    public Calendar getFotdLastUpdatedDate() {
+        Calendar datetime = Calendar.getInstance();
+        datetime.setTimeInMillis(this.fotdLastUpdated);
+        return datetime;
+    }
 }
