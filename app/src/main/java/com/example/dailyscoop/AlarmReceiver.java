@@ -12,9 +12,7 @@ import androidx.core.app.NotificationCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import java.util.ArrayList;
 import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {
@@ -25,17 +23,21 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     public static void SendNotifications(final Context context, Intent intent){
-        final ArrayList<String> flavors = new ArrayList<String>();
+
+        // todo: find closest location and get its placeId
+        String placeId = "ChIJHccCSrQgB4gRCm5LXedK-fo";
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("flavors")
+        db.collection("locations")
+                .whereEqualTo("placeId", placeId)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                flavors.add(document.getString("name"));
-                            }
+                            String fotd = task.getResult().getDocuments().get(0).getString("fotd");
+                            String name = task.getResult().getDocuments().get(0).getString("name");
+                            String address = task.getResult().getDocuments().get(0).getString("address");
 
                             // send notification
                             Intent activityIntent = new Intent (context, HomeActivity.class);
@@ -44,9 +46,9 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                             NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
                             Notification notification = new NotificationCompat.Builder(context, App.CHANNEL_1_ID)
-                                    .setSmallIcon(R.drawable.ic_event_available_black_24dp)
-                                    .setContentTitle("Today's Flavor is " + flavors.get(0))
-                                    .setContentText("At _______ [" + Calendar.getInstance().getTime() + "]")
+                                    .setSmallIcon(R.drawable.ic_ds_main_logo_outline)
+                                    .setContentTitle("Today's Flavor is " + fotd)
+                                    .setContentText("At " + name + " (" + address + ")" + Calendar.getInstance().getTime() + "]")
                                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                                     .setContentIntent(contentIntent)
                                     .build();
