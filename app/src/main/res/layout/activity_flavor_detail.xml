@@ -10,7 +10,7 @@
         android:id="@+id/img_rest1"
         android:layout_width="175dp"
         android:layout_height="149dp"
-        android:src="@drawable/culverslogo2"
+        android:src="@drawable/blackberrycobbler"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
