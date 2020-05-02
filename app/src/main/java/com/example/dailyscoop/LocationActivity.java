@@ -174,13 +174,11 @@ public class LocationActivity extends AppCompatActivity {
         if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
             loadCachedLocations();
         } else {
-            loadNewLocations();
+            loadNewLocations(0, textViews.size());
         }
     }
 
-    private void loadNewLocations() {
-        restaurantInfos.clear();
-
+    private void loadNewLocations(final int offset, final int num) {
         // Calculate the location bias bounds
         LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
         LatLng northeast = new LatLng(userLastLocation.getLatitude() + 0.125, userLastLocation.getLongitude() + 0.125);
@@ -203,7 +201,8 @@ public class LocationActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     int i = 0;
                     for (AutocompletePrediction prediction : task.getResult().getAutocompletePredictions()) {
-                        if (i++ >= textViews.size()) return;
+                        if (i < offset) { i++; continue; }
+                        if (i++ >= num + offset) return;
 
                         // Make an ArrayList of the fields we want returned
                         List<Place.Field> fields = new ArrayList<>();
@@ -256,7 +255,7 @@ public class LocationActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             RestaurantInfo restaurantInfo = task.getResult().toObject(RestaurantInfo.class);
                             if (restaurantInfo == null) {
-                                loadNewLocations();
+                                loadNewLocations(textViewIndex, 1);
                             } else {
                                 restaurantInfos.add(restaurantInfo);
                                 updateFotd(restaurantInfo);
@@ -266,7 +265,7 @@ public class LocationActivity extends AppCompatActivity {
                     }
                 });
             } else {
-                loadNewLocations();
+                loadNewLocations(i, 1);
                 return;
             }
             // TODO deal with this error condition
@@ -438,8 +437,8 @@ public class LocationActivity extends AppCompatActivity {
         flavViews = new ArrayList<>();
         flavViews.add(flav1); // Addresses
         flavViews.add(flav2);
-        textViews.add(flav3); // Addresses
-        textViews.add(flav4);
+        flavViews.add(flav3); // Addresses
+        flavViews.add(flav4);
     }
 
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {

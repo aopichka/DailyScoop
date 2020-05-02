@@ -141,10 +141,12 @@ public class HomeActivity extends AppCompatActivity {
                         break;
                     case R.id.item2:
                         Intent a = new Intent(HomeActivity.this,LocationActivity.class);
+                        finish();
                         startActivity(a);
                         break;
                     case R.id.item3:
                         Intent b = new Intent(HomeActivity.this,FlavorActivity.class);
+                        finish();
                         startActivity(b);
                         break;
                 }
@@ -222,11 +224,11 @@ public class HomeActivity extends AppCompatActivity {
         if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
             loadCachedLocations();
         } else {
-            loadNewLocations();
+            loadNewLocations(0, textViews.size());
         }
     }
 
-    private void loadNewLocations() {
+    private void loadNewLocations(final int offset, final int num) {
         restaurantInfos.clear();
 
         // Calculate the location bias bounds
@@ -251,7 +253,8 @@ public class HomeActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     int i = 0;
                     for (AutocompletePrediction prediction : task.getResult().getAutocompletePredictions()) {
-                        if (i++ >= textViews.size()) return;
+                        if (i < offset) { i++; continue; }
+                        if (i++ >= num + offset) return;
 
                         // Make an ArrayList of the fields we want returned
                         List<Place.Field> fields = new ArrayList<>();
@@ -304,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     RestaurantInfo restaurantInfo = task.getResult().toObject(RestaurantInfo.class);
                                     if (restaurantInfo == null) {
-                                        loadNewLocations();
+                                        loadNewLocations(textViewIndex, 1);
                                     } else {
                                         restaurantInfos.add(restaurantInfo);
                                         updateFotd(restaurantInfo);
@@ -314,7 +317,7 @@ public class HomeActivity extends AppCompatActivity {
                             }
                         });
             } else {
-                loadNewLocations();
+                loadNewLocations(i, 1);
                 return;
             }
             // TODO deal with this error condition
