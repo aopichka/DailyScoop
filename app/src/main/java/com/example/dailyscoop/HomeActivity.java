@@ -172,7 +172,7 @@ public class HomeActivity extends AppCompatActivity {
                 SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
                 Date parsedDate;
                 try {
-                    parsedDate = sdf.parse(date);
+                    parsedDate = sdf.parse(nextDateTemp);
                 } catch (ParseException ex) {
                     return; // TODO Fix this error handling
                 }

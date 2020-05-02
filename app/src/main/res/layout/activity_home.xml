@@ -31,36 +31,36 @@
         android:textColor="#0546B4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.674"
+        app:layout_constraintHorizontal_bias="0.676"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.238" />
+        app:layout_constraintVertical_bias="0.248" />
 
     <TextView
         android:id="@+id/txt_rest1"
-        android:layout_width="150dp"
-        android:layout_height="59dp"
+        android:layout_width="149dp"
+        android:layout_height="72dp"
         android:lines="3"
         android:text="Address"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.68"
+        app:layout_constraintHorizontal_bias="0.685"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.164" />
+        app:layout_constraintVertical_bias="0.134" />
 
     <TextView
         android:id="@+id/txt_rest2"
-        android:layout_width="137dp"
-        android:layout_height="57dp"
+        android:layout_width="160dp"
+        android:layout_height="75dp"
         android:lines="3"
         android:text="Address"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.638"
+        app:layout_constraintHorizontal_bias="0.725"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.385" />
+        app:layout_constraintVertical_bias="0.343" />
 
     <TextView
         android:id="@+id/days_away1"
@@ -132,15 +132,15 @@
 
     <ImageView
         android:id="@+id/img_rest1"
-        android:layout_width="85dp"
-        android:layout_height="95dp"
+        android:layout_width="84dp"
+        android:layout_height="97dp"
         android:src="@drawable/culverslogo2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.116"
+        app:layout_constraintHorizontal_bias="0.056"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.16" />
+        app:layout_constraintVertical_bias="0.138" />
 
     <ImageView
         android:id="@+id/img_rest3"
@@ -156,15 +156,15 @@
 
     <ImageView
         android:id="@+id/img_rest2"
-        android:layout_width="83dp"
-        android:layout_height="95dp"
+        android:layout_width="86dp"
+        android:layout_height="100dp"
         android:src="@drawable/culverslogo2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.121"
+        app:layout_constraintHorizontal_bias="0.044"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.407" />
+        app:layout_constraintVertical_bias="0.359" />
 
     <ImageView
         android:id="@+id/img_rest4"
@@ -239,9 +239,9 @@
         android:textColor="#0546B4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.643"
+        app:layout_constraintHorizontal_bias="0.656"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.446" />
+        app:layout_constraintVertical_bias="0.439" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
