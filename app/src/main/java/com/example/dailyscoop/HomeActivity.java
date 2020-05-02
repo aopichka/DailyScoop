@@ -170,7 +170,8 @@ public class HomeActivity extends AppCompatActivity {
         float[] results = new float[1];
         Location.distanceBetween(userLastLocation.getLatitude(), userLastLocation.getLongitude(), userStoredLatitude, userStoredLongitude, results);
         if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
-            loadCachedLocations();
+            //loadCachedLocations(); // TODO TESTING
+            loadNewLocations();
         } else {
             loadNewLocations();
         }
@@ -436,8 +437,8 @@ public class HomeActivity extends AppCompatActivity {
         textViews.add(txtRes2);
 
         flavViews = new ArrayList<>();
-        flavViews.add(txtRes1); // Addresses
-        flavViews.add(txtRes2);
+        flavViews.add(flav1); // Addresses
+        flavViews.add(flav2);
     }
 
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {

@@ -23,7 +23,7 @@ public class RestaurantInfo {
     private String fotd;
     private long fotdLastUpdated;
     private Image image;
-    private Map<Long, String> flavorSchedule;
+    private Map<String, String> flavorSchedule;
 
     // CONSTRUCTORS
 
@@ -53,9 +53,9 @@ public class RestaurantInfo {
     public String getFotd() { return fotd; }
     public Image getImage() { return image; }
     public long getFotdLastUpdated() { return fotdLastUpdated; }
+    public Map<String, String> getFlavorSchedule() { return flavorSchedule; }
 
     // INSTANCE METHODS
-
     @Exclude
     public Calendar getFotdLastUpdatedDate() {
         Calendar datetime = Calendar.getInstance();
@@ -64,25 +64,25 @@ public class RestaurantInfo {
     }
 
     public void addFotdToSchedule(String date, String fotd) {
-        Calendar cal = Calendar.getInstance();
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
-        Date parsedDate;
-        try {
-            parsedDate = sdf.parse(date);
-        } catch (ParseException ex) {
-            return; // TODO Fix this error handling
-        }
-        cal.setTime(parsedDate);
-
-        // Set the time to midnight
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
+//        Calendar cal = Calendar.getInstance();
+//        SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
+//        Date parsedDate;
+//        try {
+//            parsedDate = sdf.parse(date);
+//        } catch (ParseException ex) {
+//            return; // TODO Fix this error handling
+//        }
+//        cal.setTime(parsedDate);
+//
+//        // Set the time to midnight
+//        cal.set(Calendar.HOUR_OF_DAY, 0);
+//        cal.set(Calendar.MINUTE, 0);
+//        cal.set(Calendar.SECOND, 0);
+//        cal.set(Calendar.MILLISECOND, 0);
 
         // Add the record to the list
-        if (!flavorSchedule.containsKey(cal.getTimeInMillis())) {
-            flavorSchedule.put(cal.getTimeInMillis(), fotd);
+        if (!flavorSchedule.containsKey(date)) {
+            flavorSchedule.put(date, fotd);
         }
     }
 }

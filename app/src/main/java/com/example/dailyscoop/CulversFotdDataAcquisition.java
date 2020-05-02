@@ -3,6 +3,7 @@ package com.example.dailyscoop;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 
@@ -92,7 +93,7 @@ public class CulversFotdDataAcquisition extends IntentService {
      * Handle action Foo in the provided background thread with the provided
      * parameters.
      */
-    private void handleActionGetMonthsData(final String websiteUri, final String placeId) {
+    private void handleActionGetMonthsData(String websiteUri, final String placeId) {
         // Get the RestaurantInfo object for this place
         firestore.collection("locations").document(placeId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -101,29 +102,40 @@ public class CulversFotdDataAcquisition extends IntentService {
                     RestaurantInfo restaurantInfo = task.getResult().toObject(RestaurantInfo.class);
                     if (restaurantInfo == null) return; //TODO Fix this error handling
 
-                    // Get the page contents
-                    Document document;
-                    try {
-                        document = Jsoup.connect(websiteUri).get();
-                    } catch (IOException ex) {
-                        return;
-                    }
-
-                    // Parse the page for the FOTDs
-                    Elements fotdElements = document.select("div.fotdlist-unordered flavorsParted1st > div.lowerstub");
-                    for (int i=0; i<fotdElements.size(); i++) {
-                        String date = fotdElements.get(i).child(0).text().trim();
-                        String fotd = fotdElements.get(i).child(1).attributes().get("alt");
-
-                        // Add the fotd to the RestaurantInfo instance
-                        restaurantInfo.addFotdToSchedule(date, fotd);
-                    }
-
-                    // Upload the data to firestore
-                    firestore.collection("locations").document(placeId).set(restaurantInfo);
+                    new CulversGetMonthsFlavorsAsyncTask().execute(restaurantInfo);
                 }
             }
         });
+    }
+
+    private class CulversGetMonthsFlavorsAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
+        protected RestaurantInfo doInBackground(RestaurantInfo... restaurantInfo) {
+            // Get the page contents
+            Document document;
+            try {
+                document = Jsoup.connect(restaurantInfo[0].getWebsiteUri()).get();
+            } catch (IOException ex) {
+                return restaurantInfo[0];
+            }
+
+            // Parse the page for the FOTDs
+            Elements fotdElements = document.select("#entire-month > div.fotdlist-unordered > div.lowerstub");
+            //Elements fotdElements = document.select("#entire-Month").select("div.fotdlist-unordered").select("div.lowerstub");
+            for (int i=0; i<fotdElements.size(); i++) {
+                String date = fotdElements.get(i).selectFirst(".date").text().trim();
+                String fotd = fotdElements.get(i).selectFirst("div.img > img").attributes().get("alt");
+
+                // Add the fotd to the RestaurantInfo instance
+                restaurantInfo[0].addFotdToSchedule(date, fotd);
+            }
+
+            // Upload the data to firestore
+            firestore.collection("locations").document(restaurantInfo[0].getPlaceId()).set(restaurantInfo[0]);
+
+            return restaurantInfo[0];
+        }
+        protected void onProgressUpdate(Integer... progress) { }
+        protected void onPostExecute(RestaurantInfo restaurantInfo) { }
     }
 
     /**
