@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -510,7 +511,12 @@ public class HomeActivity extends AppCompatActivity {
 
         int imageResource = getResources().getIdentifier(uri, "drawable", getPackageName()); //get image  resource
 
-        Drawable res = getResources().getDrawable(imageResource); // convert into drawble
+        Drawable res;
+        try {
+            res = getResources().getDrawable(imageResource); // convert into drawble
+        } catch(Resources.NotFoundException ex) {
+            res = getResources().getDrawable(R.drawable.culverslogo);
+        }
 
         ImageView img = null;
         if (index == 0) {
