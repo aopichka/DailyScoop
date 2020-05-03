@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.FirebaseAuthCredentialsProvider;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -34,6 +35,7 @@ public class SignUpActivity extends AppCompatActivity {
     private TextView loginTxt;
     private ProgressBar progressBar;
     private FirebaseAuth firebaseAuth;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         // Set up the database
         firebaseAuth = FirebaseAuth.getInstance();
+
 
         // Set the onclick listener for the sign up button
         signUpBtn.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +76,9 @@ public class SignUpActivity extends AppCompatActivity {
                             }
                         }
                     });
+
+                    User user = new User(user_email);
+                    db.collection("users").add(user);
                 }
             }
         });
