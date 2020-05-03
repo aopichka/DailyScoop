@@ -256,11 +256,13 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             loadNewLocations(0, 4); // TODO Remove this hardcoded value
         }
+
+        // Store the user's last location in Shared Preferences
+        sharedPreferences.edit().putLong("UserLastLatitude", Double.doubleToLongBits(userLastLocation.getLatitude())).apply();
+        sharedPreferences.edit().putLong("UserLastLongitude", Double.doubleToLongBits(userLastLocation.getLongitude())).apply();
     }
 
     private void loadNewLocations(final int offset, final int num) {
-        restaurantInfos.clear();
-
         // Calculate the location bias bounds
         LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
         LatLng northeast = new LatLng(userLastLocation.getLatitude() + 0.125, userLastLocation.getLongitude() + 0.125);
@@ -455,10 +457,6 @@ public class HomeActivity extends AppCompatActivity {
                             Location mLastKnownLocation = task.getResult();
                             if (task.isSuccessful() && mLastKnownLocation != null) {
                                 userLastLocation = mLastKnownLocation;
-
-                                // Store the user's last location in Shared Preferences
-                                sharedPreferences.edit().putLong("UserLastLatitude", Double.doubleToLongBits(userLastLocation.getLatitude())).apply();
-                                sharedPreferences.edit().putLong("UserLastLongitude", Double.doubleToLongBits(userLastLocation.getLongitude())).apply();
 
                                 setFourClosestLocations();
                             }
