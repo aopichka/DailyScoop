@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.util.Log;
@@ -24,6 +25,7 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.util.Calendar;
@@ -41,15 +43,15 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("locations")
-                .whereEqualTo("placeId", placeId)
+                .document(placeId)
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                         if (task.isSuccessful()) {
-                            String fotd = task.getResult().getDocuments().get(0).getString("fotd");
-                            String name = task.getResult().getDocuments().get(0).getString("name");
-                            String address = task.getResult().getDocuments().get(0).getString("address");
+                            String fotd = task.getResult().getString("fotd");
+                            String name = task.getResult().getString("name");
+                            String address = task.getResult().getString("address");
 
                             // send notification
                             Intent activityIntent = new Intent (context, HomeActivity.class);
@@ -73,8 +75,14 @@ public class AlarmReceiver extends BroadcastReceiver {
     }
 
     public void getClosestLocation(final Context context, final Intent intent){
-        // find closest location
+        // Check for a cached location
+        SharedPreferences sharedPreferences = context.getSharedPreferences("com.example.dailyscoop", Context.MODE_PRIVATE);
+        if (sharedPreferences.contains("RestaurantInfo1")){
+            SendNotifications(context, intent, sharedPreferences.getString("RestaurantInfo1", ""));
+            return;
+        }
 
+        // find closest location
         int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 12; // Used to identify permissions for fine location
         FusedLocationProviderClient mFusedLocationProviderClient; // Client to get the devices current location
 

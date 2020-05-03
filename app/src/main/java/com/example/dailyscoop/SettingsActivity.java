@@ -41,14 +41,17 @@ public class SettingsActivity  extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.item1:
                         Intent c = new Intent(SettingsActivity.this,HomeActivity.class);
+                        finish();
                         startActivity(c);
                         break;
                     case R.id.item2:
                         Intent a = new Intent(SettingsActivity.this,LocationActivity.class);
+                        finish();
                         startActivity(a);
                         break;
                     case R.id.item3:
                         Intent b = new Intent(SettingsActivity.this,FlavorActivity.class);
+                        finish();
                         startActivity(b);
                         break;
                 }
