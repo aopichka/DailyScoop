@@ -3,7 +3,7 @@ xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context="com.example.dailyscoop.HomeActivity">
+tools:context="com.example.dailyscoop.SettingsActivity">
 
     <TextView
         android:id="@+id/textView"
@@ -19,8 +19,8 @@ tools:context="com.example.dailyscoop.HomeActivity">
         app:layout_constraintVertical_bias="0.036" />
 
     <Switch
-        android:id="@+id/switch1"
-        android:text="Test Setting 1"
+        android:id="@+id/switchNotifications"
+        android:text="Daily Notifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -30,16 +30,17 @@ tools:context="com.example.dailyscoop.HomeActivity">
         app:layout_constraintTop_toBottomOf="@+id/textView"
         app:layout_constraintVertical_bias="0.029" />
 
-    <Switch
-        android:id="@+id/switch2"
-        android:text="Test Setting 2"
+    <Button
+        android:id="@+id/testNotification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="SendTestNotification"
+        android:text="Send Test Notification"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.159"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/switch1"
+        app:layout_constraintTop_toBottomOf="@+id/switchNotifications"
         app:layout_constraintVertical_bias="0.029" />
 
     <FrameLayout
