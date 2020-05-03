@@ -41,6 +41,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -142,57 +144,75 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void setUpcomingFavoriteFlavors() {
-        // TODO TESTING
-        List<String> favFlavors = new ArrayList<>();
-        favFlavors.add("Turtle");
-        favFlavors.add("Mint Chip");
-        favFlavors.add("Cookie Dough Craving");
+        // Get the list of a user's favorite flavors
+        final List<String> favFlavors = new ArrayList<>();
+        firestore.collection("user_flavor_relationship").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    String userID = firebaseAuth.getCurrentUser().getUid();
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        // Check for this users flavors preferences
+                        if(document.getString("userID").equalsIgnoreCase(userID)) {
+                            firestore.collection("flavors").document(document.getString("flavorID")).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        favFlavors.add(task.getResult().get("name").toString());
 
-        // Set the dates for each flavor
-        for (int i=0; i < daysAwayViews.size(); i++) {
-            String flavor = favFlavors.get(i);
+                                        // Set the dates for each flavor
+                                        for (int i=0; i < daysAwayViews.size() && i < favFlavors.size(); i++) {
+                                            String flavor = favFlavors.get(i);
 
-            String nextDateString = "";
-            Calendar nextDateCal = null;
-            for (RestaurantInfo restaurantInfo : restaurantInfos) {
-                String nextDateTemp = restaurantInfo.getDateForFlavor(flavor);
-                if (nextDateTemp.isEmpty()) continue;
+                                            String nextDateString = "";
+                                            Calendar nextDateCal = null;
+                                            for (RestaurantInfo restaurantInfo : restaurantInfos) {
+                                                String nextDateTemp = restaurantInfo.getDateForFlavor(flavor);
+                                                if (nextDateTemp.isEmpty()) continue;
 
-                Calendar cal = Calendar.getInstance();
-                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
-                Date parsedDate;
-                try {
-                    parsedDate = sdf.parse(nextDateTemp);
-                } catch (ParseException ex) {
-                    return; // TODO Fix this error handling
-                }
-                cal.setTime(parsedDate);
+                                                Calendar cal = Calendar.getInstance();
+                                                SimpleDateFormat sdf = new SimpleDateFormat("EEEE, MMMM dd", Locale.US);
+                                                Date parsedDate;
+                                                try {
+                                                    parsedDate = sdf.parse(nextDateTemp);
+                                                } catch (ParseException ex) {
+                                                    return; // TODO Fix this error handling
+                                                }
+                                                cal.setTime(parsedDate);
 
-                // Set the time to this year
-                cal.set(Calendar.HOUR_OF_DAY, 0);
+                                                // Set the time to this year
+                                                cal.set(Calendar.HOUR_OF_DAY, 0);
 
-                cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+                                                cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
 
-                if (Calendar.getInstance().before(cal) && (nextDateString.isEmpty() || cal.before(nextDateCal))) {
-                    nextDateString = nextDateTemp;
-                    nextDateCal = cal;
+                                                if (Calendar.getInstance().before(cal) && (nextDateString.isEmpty() || cal.before(nextDateCal))) {
+                                                    nextDateString = nextDateTemp;
+                                                    nextDateCal = cal;
+                                                }
+                                            }
+                                            if (!nextDateString.isEmpty()) {
+                                                // Get the days way
+                                                String daysAway = String.valueOf(daysBetween(new GregorianCalendar().getTime(), nextDateCal.getTime()));
+
+                                                // Set the UI elements here
+                                                daysAwayViews.get(i).setText("Days Away: " + daysAway);
+                                                distanceViews.get(i).setText(flavor);
+                                                updatePicture(getPathForFlavor(flavor), i + 2); // TODO remove this hardcoded num
+                                            } else {
+                                                // Set the default UI elements here
+                                                daysAwayViews.get(i).setText("Not Upcoming");
+                                                distanceViews.get(i).setText(flavor);
+                                                updatePicture(getPathForFlavor(flavor), i + 2);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    }
                 }
             }
-            if (!nextDateString.isEmpty()) {
-                // Get the days way
-                String daysAway = String.valueOf(daysBetween(new GregorianCalendar().getTime(), nextDateCal.getTime()));
-
-                // Set the UI elements here
-                daysAwayViews.get(i).setText("Days Away: " + daysAway);
-                distanceViews.get(i).setText(flavor);
-                updatePicture(getPathForFlavor(flavor), i + 2); // TODO remove this hardcoded num
-            } else {
-                // Set the default UI elements here
-                daysAwayViews.get(i).setText("Not Upcoming");
-                distanceViews.get(i).setText(flavor);
-                updatePicture(getPathForFlavor(flavor), i + 2);
-            }
-        }
+        });
     }
 
     private int daysBetween(Date d1, Date d2){
