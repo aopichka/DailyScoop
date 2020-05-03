@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -43,6 +45,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -300,6 +303,32 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void onClick (View view){
+
+        int imgID = view.getId();
+        String flavorName = null;
+
+
+        if (imgID == findViewById(R.id.img_rest1).getId()){
+            flavorName = restaurantInfos.get(0).getFotd();
+        } else if (imgID == findViewById(R.id.img_rest2).getId()) {
+            flavorName = restaurantInfos.get(1).getFotd();
+        } else if (imgID == findViewById(R.id.img_rest3).getId()) {
+            flavorName = restaurantInfos.get(2).getFotd();
+        } else if (imgID == findViewById(R.id.img_rest4).getId()) {
+            flavorName = restaurantInfos.get(3).getFotd();
+        } else if (imgID == findViewById(R.id.img_rest5).getId()) {
+            flavorName = restaurantInfos.get(4).getFotd();
+        }
+
+        Intent i = new Intent(HomeActivity.this, FlavorDetailActivity.class);
+        i.putExtra("Name", flavorName);
+        startActivity(i);
+
+    }
+
+
 
     private void loadCachedLocations() {
         restaurantInfos.clear();
