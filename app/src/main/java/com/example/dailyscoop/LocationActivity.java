@@ -1,7 +1,6 @@
 package com.example.dailyscoop;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -11,34 +10,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.LocationBias;
-import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -49,26 +36,18 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
 
 public class LocationActivity extends AppCompatActivity {
     private static final int METERS_CHANGED_BEFORE_UPDATE = 8000;
@@ -178,7 +157,7 @@ public class LocationActivity extends AppCompatActivity {
         }
     }
 
-    private void loadNewLocations(final int offset, final int num) {
+    private void loadNewLocations(int offset, int num) {
         // Calculate the location bias bounds
         LatLng southwest = new LatLng(userLastLocation.getLatitude() - 0.125, userLastLocation.getLongitude() - 0.125);
         LatLng northeast = new LatLng(userLastLocation.getLatitude() + 0.125, userLastLocation.getLongitude() + 0.125);
@@ -195,14 +174,16 @@ public class LocationActivity extends AppCompatActivity {
                 .setQuery(query)
                 .build();
 
+        final int tempOffset = offset;
+        final int tempNum = num;
         placesClient.findAutocompletePredictions(request).addOnCompleteListener(new OnCompleteListener<FindAutocompletePredictionsResponse>() {
             @Override
             public void onComplete(@NonNull Task<FindAutocompletePredictionsResponse> task) {
                 if (task.isSuccessful()) {
                     int i = 0;
                     for (AutocompletePrediction prediction : task.getResult().getAutocompletePredictions()) {
-                        if (i < offset) { i++; continue; }
-                        if (i++ >= num + offset) return;
+                        if (i < tempOffset) { i++; continue; }
+                        if (i++ >= tempNum + tempOffset) return;
 
                         // Make an ArrayList of the fields we want returned
                         List<Place.Field> fields = new ArrayList<>();
@@ -230,6 +211,9 @@ public class LocationActivity extends AppCompatActivity {
                                     //restaurantInfo.setImage();
                                     restaurantInfo.setWebsiteUri(websiteUri);
                                     restaurantInfos.add(restaurantInfo);
+
+                                    // Start the service to update the full month of data
+                                    CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo.getWebsiteUri(), restaurantInfo.getPlaceId());
 
                                     new CulversInfoAsyncTask().execute(restaurantInfo);
                                 }
@@ -260,6 +244,9 @@ public class LocationActivity extends AppCompatActivity {
                                 restaurantInfos.add(restaurantInfo);
                                 updateFotd(restaurantInfo);
                                 updateRestaurantInfoTextViews();
+
+                                // Start the service to update the full month of data
+                                CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo.getWebsiteUri(), restaurantInfo.getPlaceId());
                             }
                         }
                     }
@@ -296,12 +283,24 @@ public class LocationActivity extends AppCompatActivity {
             // Store the location data in SharedPreferences
             sharedPreferences.edit().putString("RestaurantInfo" + i, restaurantInfo.getPlaceId()).apply();
 
-            // Craft the string for the rest info TESTING TODO
+            // Craft the string for the rest info
             String label = restaurantInfo.getAddress();
             textView.setText(label);
             String label2 = restaurantInfo.getFotd();
             flavView.setText(label2);
+
+            // Set the image for the restaurants
+            updatePicture(getPathForFlavor(restaurantInfo.getFotd()), i);
         }
+    }
+
+    private String getPathForFlavor(String name) {
+        String pathToImage = name.toLowerCase();
+        pathToImage = pathToImage.trim();
+        pathToImage = pathToImage.replaceAll(" ", "");
+        pathToImage = pathToImage.replaceAll("’", "");
+
+        return pathToImage;
     }
 
     private String getFOTD(String websiteUri) {
@@ -389,9 +388,9 @@ public class LocationActivity extends AppCompatActivity {
 
     private void updatePicture(String newImage, int index) {
 
-        String uri = "@drawable/" + newImage;
+        String uri = newImage;
 
-        int imageResource = getResources().getIdentifier(uri, null, getPackageName()); //get image  resource
+        int imageResource = getResources().getIdentifier(uri, "drawable", getPackageName()); //get image  resource
 
         Drawable res = getResources().getDrawable(imageResource); // convert into drawble
 
@@ -404,8 +403,6 @@ public class LocationActivity extends AppCompatActivity {
             img = findViewById(R.id.img_rest3);
         } else if (index == 3) {
             img = findViewById(R.id.img_rest4);
-        } else if (index == 4) {
-            img = findViewById(R.id.img_rest5);
         }
 
         if (img != null) {

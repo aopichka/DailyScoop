@@ -1,7 +1,6 @@
 package com.example.dailyscoop;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -11,34 +10,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.LocationBias;
-import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -49,21 +36,14 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.w3c.dom.Text;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -99,6 +79,8 @@ public class HomeActivity extends AppCompatActivity {
     private TextView txtRes1, txtRes2;
     private List<TextView> textViews;
     private List<TextView> flavViews;
+    private List<TextView> daysAwayViews;
+    private List<TextView> distanceViews;
     private FirebaseAuth firebaseAuth;
     private PlacesClient placesClient;
 
@@ -163,7 +145,9 @@ public class HomeActivity extends AppCompatActivity {
         favFlavors.add("Cookie Dough Craving");
 
         // Set the dates for each flavor
-        for (String flavor : favFlavors) {
+        for (int i=0; i < daysAwayViews.size(); i++) {
+            String flavor = favFlavors.get(i);
+
             String nextDateString = "";
             Calendar nextDateCal = null;
             for (RestaurantInfo restaurantInfo : restaurantInfos) {
@@ -180,23 +164,44 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 cal.setTime(parsedDate);
 
-                // Set the time to midnight
+                // Set the time to this year
                 cal.set(Calendar.HOUR_OF_DAY, 0);
-                cal.set(Calendar.MINUTE, 0);
-                cal.set(Calendar.SECOND, 0);
-                cal.set(Calendar.MILLISECOND, 0);
 
-                if (nextDateString.isEmpty() || cal.before(nextDateCal)) {
+                cal.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+
+                if (Calendar.getInstance().before(cal) && (nextDateString.isEmpty() || cal.before(nextDateCal))) {
                     nextDateString = nextDateTemp;
                     nextDateCal = cal;
                 }
             }
             if (!nextDateString.isEmpty()) {
+                // Get the days way
+                String daysAway = String.valueOf(daysBetween(new GregorianCalendar().getTime(), nextDateCal.getTime()));
+
                 // Set the UI elements here
+                daysAwayViews.get(i).setText("Days Away: " + daysAway);
+                distanceViews.get(i).setText(flavor);
+                updatePicture(getPathForFlavor(flavor), i + 2); // TODO remove this hardcoded num
             } else {
                 // Set the default UI elements here
+                daysAwayViews.get(i).setText("Not Upcoming");
+                distanceViews.get(i).setText(flavor);
+                updatePicture(getPathForFlavor(flavor), i + 2);
             }
         }
+    }
+
+    private int daysBetween(Date d1, Date d2){
+        return (int)( (d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    private String getPathForFlavor(String name) {
+        String pathToImage = name.toLowerCase();
+        pathToImage = pathToImage.trim();
+        pathToImage = pathToImage.replaceAll(" ", "");
+        pathToImage = pathToImage.replaceAll("’", "");
+
+        return pathToImage;
     }
 
     private void setFourClosestLocations() {
@@ -224,7 +229,7 @@ public class HomeActivity extends AppCompatActivity {
         if (results[0] < METERS_CHANGED_BEFORE_UPDATE) {
             loadCachedLocations();
         } else {
-            loadNewLocations(0, textViews.size());
+            loadNewLocations(0, 4); // TODO Remove this hardcoded value
         }
     }
 
@@ -283,6 +288,9 @@ public class HomeActivity extends AppCompatActivity {
                                     restaurantInfo.setWebsiteUri(websiteUri);
                                     restaurantInfos.add(restaurantInfo);
 
+                                    // Start the service to update the full month of data
+                                    CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo.getWebsiteUri(), restaurantInfo.getPlaceId());
+
                                     new CulversInfoAsyncTask().execute(restaurantInfo);
                                 }
                             }
@@ -312,6 +320,9 @@ public class HomeActivity extends AppCompatActivity {
                                         restaurantInfos.add(restaurantInfo);
                                         updateFotd(restaurantInfo);
                                         updateRestaurantInfoTextViews();
+
+                                        // Start the service to update the full month of data
+                                        CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo.getWebsiteUri(), restaurantInfo.getPlaceId());
                                     }
                                 }
                             }
@@ -355,11 +366,7 @@ public class HomeActivity extends AppCompatActivity {
             flavView.setText(label2);
 
             // Set the image for the restaurants
-            String pathToImage = restaurantInfo.getFotd().toLowerCase();
-            pathToImage = pathToImage.trim();
-            pathToImage = pathToImage.replaceAll(" ", "");
-            pathToImage = pathToImage.replaceAll("’", "");
-            updatePicture(pathToImage, i);
+            updatePicture(getPathForFlavor(restaurantInfo.getFotd()), i);
         }
 
         setUpcomingFavoriteFlavors(); // TODO maybe combine these methods into a master method
@@ -499,14 +506,21 @@ public class HomeActivity extends AppCompatActivity {
         flavViews = new ArrayList<>();
         flavViews.add(flav1); // Addresses
         flavViews.add(flav2);
+
+        daysAwayViews = new ArrayList<>();
+        daysAwayViews.add((TextView)findViewById(R.id.days_away1));
+        daysAwayViews.add((TextView)findViewById(R.id.days_away2));
+        daysAwayViews.add((TextView)findViewById(R.id.days_away3));
+
+        distanceViews = new ArrayList<>();
+        distanceViews.add((TextView)findViewById(R.id.flav3));
+        distanceViews.add((TextView)findViewById(R.id.flav4));
+        distanceViews.add((TextView)findViewById(R.id.flav5));
     }
 
     private class CulversInfoAsyncTask extends AsyncTask<RestaurantInfo, Integer, RestaurantInfo> {
         protected RestaurantInfo doInBackground(RestaurantInfo... restaurantInfo) {
             restaurantInfo[0].setFotd(getFOTD(restaurantInfo[0].getWebsiteUri()));
-
-            // Start the service to update the full month of data
-            CulversFotdDataAcquisition.startActionGetMonthsFlavor(getBaseContext(), restaurantInfo[0].getWebsiteUri(), restaurantInfo[0].getPlaceId());
 
             // Upload the data to the firestore DB
             firestore.collection("locations").document(restaurantInfo[0].getPlaceId()).set(restaurantInfo[0]);
