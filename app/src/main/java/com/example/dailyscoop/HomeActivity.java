@@ -477,6 +477,8 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
+
+
     private void logout() {
         firebaseAuth.signOut();
         finish();
