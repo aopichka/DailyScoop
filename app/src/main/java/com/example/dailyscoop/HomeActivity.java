@@ -338,9 +338,9 @@ public class HomeActivity extends AppCompatActivity {
         } else if (imgID == findViewById(R.id.img_rest3).getId()) {
             flavorName = distanceViews.get(0).getText().toString();
         } else if (imgID == findViewById(R.id.img_rest4).getId()) {
-            flavorName = distanceViews.get(2).getText().toString();
+            flavorName = distanceViews.get(1).getText().toString();
         } else if (imgID == findViewById(R.id.img_rest5).getId()) {
-            flavorName = distanceViews.get(3).getText().toString();
+            flavorName = distanceViews.get(2).getText().toString();
         }
 
         Intent i = new Intent(HomeActivity.this, FlavorDetailActivity.class);
