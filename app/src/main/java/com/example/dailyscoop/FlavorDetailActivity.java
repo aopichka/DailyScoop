@@ -1,16 +1,22 @@
 package com.example.dailyscoop;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
@@ -40,6 +46,9 @@ public class FlavorDetailActivity extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.flav1);
         title.setText(flavorName);
 
+        flavorName = getPathForFlavor(flavorName);
+        updatePicture(flavorName);
+
 
         // TODO Some functionality to retrieve restaurants that have this flavor
 
@@ -52,8 +61,61 @@ public class FlavorDetailActivity extends AppCompatActivity {
         // Attach the adapter to a ListView
         ListView listView = (ListView) findViewById(R.id.mobile_list);
         listView.setAdapter(adapter);
+
+
+        BottomNavigationView navigation;
+        navigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        navigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.item1:
+                        Intent a = new Intent(FlavorDetailActivity.this, HomeActivity.class);
+                        finish();
+                        startActivity(a);
+                        break;
+                    case R.id.item2:
+                        Intent b = new Intent(FlavorDetailActivity.this, LocationActivity.class);
+                        finish();
+                        startActivity(b);
+                        break;
+                    case R.id.item3:
+                        Intent c = new Intent(FlavorDetailActivity.this, FlavorActivity.class);
+                        finish();
+                        startActivity(c);
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
+
+    private String getPathForFlavor(String name) {
+        String pathToImage = name.toLowerCase();
+        pathToImage = pathToImage.trim();
+        pathToImage = pathToImage.replaceAll(" ", "");
+        pathToImage = pathToImage.replaceAll("’", "");
+
+        return pathToImage;
+    }
+
+
+    private void updatePicture(String newImage) {
+
+        String uri = newImage;
+
+        int imageResource = getResources().getIdentifier(uri, "drawable", getPackageName()); //get image  resource
+
+        Drawable res = getResources().getDrawable(imageResource); // convert into drawble
+
+        ImageView img = findViewById(R.id.img_rest1);
+
+        if (img != null) {
+            img.setImageDrawable(res); // set as image
+        }
+
+    }
 
     public class UsersAdapter extends ArrayAdapter<String> {
         public UsersAdapter(Context context, ArrayList<String> users) {
