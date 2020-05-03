@@ -316,11 +316,11 @@ public class HomeActivity extends AppCompatActivity {
         } else if (imgID == findViewById(R.id.img_rest2).getId()) {
             flavorName = restaurantInfos.get(1).getFotd();
         } else if (imgID == findViewById(R.id.img_rest3).getId()) {
-            flavorName = restaurantInfos.get(2).getFotd();
+            flavorName = distanceViews.get(0).getText().toString();
         } else if (imgID == findViewById(R.id.img_rest4).getId()) {
-            flavorName = restaurantInfos.get(3).getFotd();
+            flavorName = distanceViews.get(2).getText().toString();
         } else if (imgID == findViewById(R.id.img_rest5).getId()) {
-            flavorName = restaurantInfos.get(4).getFotd();
+            flavorName = distanceViews.get(3).getText().toString();
         }
 
         Intent i = new Intent(HomeActivity.this, FlavorDetailActivity.class);
@@ -329,8 +329,6 @@ public class HomeActivity extends AppCompatActivity {
         startActivity(i);
 
     }
-
-
 
     private void loadCachedLocations() {
         restaurantInfos.clear();
@@ -535,8 +533,9 @@ public class HomeActivity extends AppCompatActivity {
         textViews.add(txtRes2);
 
         flavViews = new ArrayList<>();
-        flavViews.add(flav1); // Addresses
+        flavViews.add(flav1); // Flavors
         flavViews.add(flav2);
+
 
         daysAwayViews = new ArrayList<>();
         daysAwayViews.add((TextView)findViewById(R.id.days_away1));
