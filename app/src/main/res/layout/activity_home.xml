@@ -116,7 +116,6 @@
 
     <TextView
         android:id="@+id/Favorites"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Favorites"
@@ -132,6 +131,7 @@
 
     <ImageView
         android:id="@+id/img_rest1"
+        android:onClick="onClick"
         android:layout_width="84dp"
         android:layout_height="97dp"
         android:src="@drawable/culverslogo2"
@@ -144,6 +144,7 @@
 
     <ImageView
         android:id="@+id/img_rest3"
+        android:onClick="onClick"
         android:layout_width="105dp"
         android:layout_height="107dp"
         app:layout_constraintBottom_toBottomOf="parent"
