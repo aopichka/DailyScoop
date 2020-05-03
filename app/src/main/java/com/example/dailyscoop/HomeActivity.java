@@ -17,6 +17,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -324,6 +325,7 @@ public class HomeActivity extends AppCompatActivity {
 
         Intent i = new Intent(HomeActivity.this, FlavorDetailActivity.class);
         i.putExtra("Name", flavorName);
+        finish();
         startActivity(i);
 
     }
